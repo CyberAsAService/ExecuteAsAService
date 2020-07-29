@@ -1,4 +1,0 @@
-run server: python deploy_web.py
-
-run workers: python -m celery -A deploy_web.celery worker -l info -P gevent
-run dashboard: python -m flower -A deploy_web.celery
