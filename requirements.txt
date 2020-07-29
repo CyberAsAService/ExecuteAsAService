@@ -1,0 +1,5 @@
+Flask==1.1.2
+celery==4.4.6
+redis==3.5.3
+gevent==20.6.2
+flower==1.0.1
