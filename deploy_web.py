@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from celery import Celery
 from celery.result import AsyncResult
+import requests
 
 from deploy import run_command, Endpoint
 
@@ -15,7 +16,9 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.co
 @app.route('/execute', methods=['POST'])
 def execute():
     data = request.form
-    task = _execute.delay(data['ip_address'], data['username'], data['password'], data['process'], data['command'])
+    task = _execute.delay(
+        data['ip_address'], data['username'], data['password'], data['process'], data['command'])
+    # task = _execute.delay(data['ip_address'], data['username'], data['password'], data['process'], data['command'])
     return jsonify(task_id=task.id)
 
 
@@ -28,9 +31,11 @@ def status(task_id):
         return jsonify(status=res.status)
 
 
-@celery.task()
-def _execute(ip_address, username, password, process, command):
-    return run_command(Endpoint(ip_address, username, password), process, command)
+@celery.task(bind=True)
+def _execute(self, ip_address, username, password, process, command):
+    result = run_command(Endpoint(ip_address, username, password), process, command)
+    requests.patch(f'http://localhost:3000/task/${self.request.id}', data=result)
+    return result
 
 
 if __name__ == '__main__':
