@@ -26,7 +26,7 @@ def execute():
 def status(task_id):
     res = AsyncResult(task_id, app=celery)
     if res.status in ["FAILURE", "SUCCESS"]:
-        return jsonify(**res.get())
+        return jsonify(status=res.status, **res.get())
     else:
         return jsonify(status=res.status)
 
