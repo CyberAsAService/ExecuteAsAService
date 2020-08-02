@@ -15,7 +15,7 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.co
 
 @app.route('/execute', methods=['POST'])
 def execute():
-    data = request.form
+    data = request.form or request.json
     task = _execute.apply_async(
         args=(data['ip_address'], data['username'], data['password'], data['process'], data['command']),
         link=update.s())
