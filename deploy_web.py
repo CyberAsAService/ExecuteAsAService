@@ -40,8 +40,9 @@ def _execute(self, ip_address, username, password, process, command):
 @celery.task
 def update(result):
     req = requests.patch(f'http://localhost:3000/task', data=result)
+
     return {"parent": result["task_id"], "data": result, "status_code": req.status_code, "msg": req.reason}
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)
