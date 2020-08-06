@@ -30,7 +30,6 @@ def status(task_id):
     else:
         return jsonify(status=res.status)
 
-
 @celery.task(bind=True)
 def _execute(self, ip_address, username, password, process, command):
     result = run_command(Endpoint(ip_address, username, password), process, command)
@@ -39,8 +38,7 @@ def _execute(self, ip_address, username, password, process, command):
 
 @celery.task
 def update(result):
-    req = requests.patch(f'http://localhost:3000/task', data=result)
-
+    req = requests.patch(f'http://localhost:3000/Executer', data=result)
     return {"parent": result["task_id"], "data": result, "status_code": req.status_code, "msg": req.reason}
 
 
