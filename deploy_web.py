@@ -16,8 +16,9 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.co
 @app.route('/execute', methods=['POST'])
 def execute():
     data = request.form or request.json
+    print(data)
     task = _execute.apply_async(
-        args=(data['ip_address'], data['username'], data['password'], data['process'], data['command']),
+        args=(data['ip_address'], data['username'], data['password'], data['command']),
         link=update.s())
     return jsonify(task_id=task.id)
 
@@ -31,14 +32,14 @@ def status(task_id):
         return jsonify(status=res.status)
 
 @celery.task(bind=True)
-def _execute(self, ip_address, username, password, process, command):
-    result = run_command(Endpoint(ip_address, username, password), process, command)
+def _execute(self, ip_address, username, password, command):
+    result = run_command(Endpoint(ip_address, username, password), command)
     return dict(task_id=self.request.id, **result)
 
 
 @celery.task
 def update(result):
-    req = requests.patch(f'http://localhost:3000/Executer', data=result)
+    req = requests.patch('http://localhost:3000/Executer', data=result)
     return {"parent": result["task_id"], "data": result, "status_code": req.status_code, "msg": req.reason}
 
 
