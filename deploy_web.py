@@ -17,6 +17,7 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.co
 def execute():
     data = request.form or request.json
     print(data)
+
     task = _execute.apply_async(
         args=(data['ip_address'], data['username'], data['password'], data['hash']),kwargs=data['args'],
         link=update.s())
@@ -33,6 +34,7 @@ def status(task_id):
 
 @celery.task(bind=True)
 def _execute(self, ip_address, username, password, hash, **kwargs):
+    update({"parent": self.request.id, "data": f"{ip_address}->{hash}", "status_code": 200 , "msg": "Execute"})
     result = run_command(Endpoint(ip_address, username, password), hash, **kwargs)
     return dict(task_id=self.request.id, **result)
 

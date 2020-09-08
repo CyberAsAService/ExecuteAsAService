@@ -12,4 +12,4 @@ $command = 'powershell -noninteractive "&{(New-Object Net.WebClient).DownloadStr
 #psexec \\$address -u $username -p $password /accepteula cmd /c 'powershell -noninteractive "&{(New-Object Net.WebClient).DownloadString(''http://10.0.0.12:3000/repo/scripts?hash='$hash''').Replace(''ï»¿'', '''').Replace(''<insert args here>'', ''$downloadUrl = '' + '''$downloadUrl';'' + ''$output='' +'''$output';''+''$uploadUrl='' + ''""http:\\10.0.0.12:3000/repo/deployer"""";'')} | iex"'
 
 write-host $command
-./psexec \\$address -u $username -p $password /accepteula cmd /c $command
+./psexec \\$address -u $username -p $password /accepteula -d cmd /c $command
