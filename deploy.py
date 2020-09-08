@@ -20,7 +20,7 @@ class Endpoint:
 PSEXEC_FORMAT = './PsExec.exe \\\\{remote_host} -u {remote_host}\\{user} -p {password} -accepteula -h -d cmd /c \'powershell -noninteractive \"[regex]::Escape("&{{command}}") | iex\"\''
 
 #TODO -> GET FROM VARIABLES
-def _run_subprocess(remote_host: Endpoint, command: str) -> subprocess.Popen:
+def _run_subprocess(remote_host: Endpoint, hash: str, **kwargs) -> subprocess.Popen:
     """
     :param remote_host:
     :param command:
@@ -31,17 +31,22 @@ def _run_subprocess(remote_host: Endpoint, command: str) -> subprocess.Popen:
     #                                        remote_host=remote_host.ip_address,
     #                                        command=command)"
     #print(process_command)
-    print(' '.join(["powershell.exe",  '-ExecutionPolicy', 'Unrestricted', "./runner.ps1", "-address", remote_host.ip_address ,"-username", remote_host.username ,"-password", remote_host.password,"-hash", '299e16917325d5836aacf0ac5b48e66738f5c631ab7a14be27005dace7585c6f' ,"-downloadUrl",  'https://static.toiimg.com/thumb/msid-67586673,width-800,height-600,resizemode-75,imgsize-3918697,pt-32,y_pad-40/67586673.jpg' ,"-output" ,'C:\\this.png']))
-    return subprocess.Popen(["powershell.exe",  '-ExecutionPolicy', 'Unrestricted', "./runner.ps1", "-address", remote_host.ip_address ,"-username", remote_host.username ,"-password", remote_host.password,"-hash", '299e16917325d5836aacf0ac5b48e66738f5c631ab7a14be27005dace7585c6f' ,"-downloadUrl",  "'https://static.toiimg.com/thumb/msid-67586673,width-800,height-600,resizemode-75,imgsize-3918697,pt-32,y_pad-40/67586673.jpg'" ,"-output" ,'C:\\this.png'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+    #$downloadUrl = ''''' + $downloadUrl + ''''';
 
-def run_command(remote_host: Endpoint, command: str) -> Dict[str, str]:
+    command = ["powershell.exe",  '-ExecutionPolicy', 'Unrestricted', "./runner.ps1", "-address",  remote_host.ip_address ,"-username", remote_host.username ,"-password", remote_host.password,"-hash", hash]
+    command += ['-arguments', '"' +''.join([f"`${arg} = ''{value}'';" for arg,value in kwargs.items()])+'"']
+    print(' '.join(command))
+    #print(' '.join(["powershell.exe",  '-ExecutionPolicy', 'Unrestricted', "./runner.ps1", "-address", remote_host.ip_address ,"-username", remote_host.username ,"-password", remote_host.password,"-hash", hash ,"-downloadUrl",  'https://static.toiimg.com/thumb/msid-67586673,width-800,height-600,resizemode-75,imgsize-3918697,pt-32,y_pad-40/67586673.jpg' ,"-output" ,'C:\\this.png']))
+    return subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+def run_command(remote_host: Endpoint, hash: str, **kwargs) -> Dict[str, str]:
     """
     :param remote_host:
     :param command:
     :return:
     """
 
-    process = _run_subprocess(remote_host, command)
+    process = _run_subprocess(remote_host, hash, **kwargs)
     res = dict(rc=process.wait(), out=str(process.stdout.read()), err=str(process.stderr.read()))
     return res

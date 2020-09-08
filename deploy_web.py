@@ -18,7 +18,7 @@ def execute():
     data = request.form or request.json
     print(data)
     task = _execute.apply_async(
-        args=(data['ip_address'], data['username'], data['password'], data['command']),
+        args=(data['ip_address'], data['username'], data['password'], data['hash']),kwargs=data['args'],
         link=update.s())
     return jsonify(task_id=task.id)
 
@@ -32,8 +32,8 @@ def status(task_id):
         return jsonify(status=res.status)
 
 @celery.task(bind=True)
-def _execute(self, ip_address, username, password, command):
-    result = run_command(Endpoint(ip_address, username, password), command)
+def _execute(self, ip_address, username, password, hash, **kwargs):
+    result = run_command(Endpoint(ip_address, username, password), hash, **kwargs)
     return dict(task_id=self.request.id, **result)
 
 
