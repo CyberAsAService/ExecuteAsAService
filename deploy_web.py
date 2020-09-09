@@ -34,7 +34,7 @@ def status(task_id):
 
 @celery.task(bind=True)
 def _execute(self, ip_address, username, password, hash, **kwargs):
-    update({"parent": self.request.id, "data": f"{ip_address}->{hash}", "status_code": 200 , "msg": "Execute"})
+    update({"task_id": self.request.id, "data": f"{ip_address}->{hash}", "status":"Running", "status_code": 200 , "msg": "Execute"})
     result = run_command(Endpoint(ip_address, username, password), hash, **kwargs)
     return dict(task_id=self.request.id, **result)
 
@@ -42,7 +42,7 @@ def _execute(self, ip_address, username, password, hash, **kwargs):
 @celery.task
 def update(result):
     req = requests.patch('http://localhost:3000/Executer', data=result)
-    return {"parent": result["task_id"], "data": result, "status_code": req.status_code, "msg": req.reason}
+    return {"parent": result["task_id"], "data": result,"status":result["msg"], "status_code": req.status_code, "msg": req.reason}
 
 
 if __name__ == '__main__':

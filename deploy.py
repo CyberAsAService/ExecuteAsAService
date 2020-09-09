@@ -48,5 +48,5 @@ def run_command(remote_host: Endpoint, hash: str, **kwargs) -> Dict[str, str]:
     """
 
     process = _run_subprocess(remote_host, hash, **kwargs)
-    res = dict(rc=process.wait(), out=str(process.stdout.read()), err=str(process.stderr.read()))
+    res = dict(rc=process.wait(), out=str(process.stdout.read()), err=str(process.stderr.read()), status= "Sent", msg="Sent")
     return res

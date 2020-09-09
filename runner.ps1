@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$address,
     [Parameter(Mandatory=$true)][string]$username,
-    [Parameter(Mandatory=$true)][string]$password,
+    [Parameter(Mandatory=$true)][string]$password, #TODO -> Secure this shit
     [Parameter(Mandatory=$true)][string]$hash,
     [Parameter(Mandatory=$true)][string]$arguments
 )
